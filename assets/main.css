@@ -1,0 +1,12 @@
+.main{
+    display: flex;
+}
+.left{
+    width: 10%;
+}
+.right{
+    width: 90%;
+}
+.left-tabs{
+    display: inline;
+}
