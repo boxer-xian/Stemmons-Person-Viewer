@@ -29,7 +29,7 @@ def index(selection):
     cases = Cases(user)
     if selection == 'Current':
         #should look like cases.current(*args,**kwargs)
-        return 'Current ' + user
+        return cases.current()
 
     elif selection == 'Lifetime':
         #should look like cases.lifetime(*args,**kwargs)

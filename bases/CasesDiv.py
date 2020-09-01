@@ -1,5 +1,7 @@
 from bases.base import Base
-
+from dash.dependencies import Input, Output, State, MATCH, ALL
+import dash_html_components as html
+import dash_bootstrap_components as dbc
 
 
 class Cases(Base):
@@ -8,11 +10,11 @@ class Cases(Base):
     to keepy room. All data manipulation '''
     #you get access to the user with self.user
 
-    def current():
+    def current(self):
+        return html.Div('hello worl!', id='hello-world')
+
+    def lifetime(self):
         pass
 
-    def lifetime():
-        pass
-
-    def relationships():
+    def relationships(self):
         pass
