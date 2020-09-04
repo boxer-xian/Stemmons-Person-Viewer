@@ -4,7 +4,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 import dash
-from tabs import Cases
+from tabs import cases
 from app import app, server
 from flask import request, session
 
@@ -53,7 +53,7 @@ app.layout = html.Div(
 def tabs(selected):
 
     if selected == 'Cases':
-        return Cases.layout
+        return cases.layout
 
     elif selected == 'Entites':
         return 'Entities.layout'

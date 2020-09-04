@@ -5,7 +5,8 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash
 from app import app
-from bases.CasesDiv import Cases
+from bases.casesdiv import Cases
+from db.casecalls import CaseCalls
 
 tabs = dbc.Tabs(
                 [
@@ -33,7 +34,8 @@ def index(selection):
 
     elif selection == 'Lifetime':
         #should look like cases.lifetime(*args,**kwargs)
-        return 'Livetime'
+        print(str(CaseCalls().case_types()))
+        return str(CaseCalls().case_types())
 
     elif selection == 'Relationships':
         #should look like cases.relationships(*args,**kwargs)

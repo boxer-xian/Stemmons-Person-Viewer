@@ -2,7 +2,7 @@ from bases.base import Base
 from dash.dependencies import Input, Output, State, MATCH, ALL
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-
+from db.casecalls import CaseCalls
 
 class Cases(Base):
     '''Class for creating and organizing cases tab, try and 

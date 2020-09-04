@@ -4,11 +4,19 @@ http://cases.boxerproperty.com/ViewCase.aspx?CaseID=5237734
 
 ## Before starting run:
 ```
+    git clone https://github.com/michaelfBoxer/Stemmons-Person-Viewer.git
+
+    cd Stemmons-Person-Viewer
+
+    python -m venv venv
+
+    "./venv/Scripts/activate.bat"
+
     pip install "Z:\Application Development\PIPInstall\FN_dev_package"
 
     pip install -r requirements.txt
 
-    "./venv/Scripts/activate.bat"
+    
 ```
 
 ## Guidelines:
