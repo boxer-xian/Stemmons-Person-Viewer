@@ -14,8 +14,6 @@ http://cases.boxerproperty.com/ViewCase.aspx?CaseID=5237734
 
     pip install "Z:\Application Development\PIPInstall\FN_dev_package"
 
-    pip install -r requirements.txt
-
     
 ```
 
