@@ -1,16 +1,30 @@
 from stemmons.Stemmons_Dash import Stemmons_Dash_App
 import dash_bootstrap_components as dbc
 import dash_html_components as html
+import dash_core_components as dcc
 from dash.dependencies import Input, Output
-from tabs.Cases import app as cases
-from tabs import Cases
-from app import app
+import dash
+from tabs import cases
+from app import app, server
+from flask import request, session
+
+#possible get the cooke 
+app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
+@server.after_request
+def user(req):
+    user = request.cookies.get('byttTTojdr45','MichaelAF')
+    req.set_cookie('user',user)
+    #print(req.cookies['user'])
+    return req
 
 
 app.layout = html.Div(
     [html.Div([
-        html.Div([html.Img(src='http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username=MichaelAF',className='user-image')],
-                    className='user'),
+        dcc.Interval(id='clock', max_intervals=1, interval=1),
+        html.Div([html.Img(id='user-photo',
+                        className='user-image')],
+                        
+                        className='user'),
             ############
             dbc.Tabs(
                 [
@@ -39,16 +53,24 @@ app.layout = html.Div(
 def tabs(selected):
 
     if selected == 'Cases':
-        return Cases.layout
+        return cases.layout
 
     elif selected == 'Entites':
-        return 'Entities().page()'
+        return 'Entities.layout'
     
     #elif selected == 'Quest':
-        #return 'Quest().page()'
+        #return 'Quest.layout'
 
-    return html.P('This shouldn\'t ever be displayed...')
-
+@app.callback(Output('user-photo','src'),
+                [Input('clock', 'n_intervals')])
+def image(n_intervals):
+    #print(n_intervals)
+    if n_intervals == 1:
+        user = request.cookies['user']
+        #if production this should be pulled form teh db
+        return f'http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username={user}'
+    else:
+        raise dash.exceptions.PreventUpdate
 
 if __name__ == '__main__':
     app.run_server(debug=True)

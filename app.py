@@ -8,4 +8,6 @@ app = Stemmons_Dash_App( name=__name__,
                         suppress_callback_exceptions=True,
                         external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+server = app.server
+
 
