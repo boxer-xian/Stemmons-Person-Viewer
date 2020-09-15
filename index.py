@@ -12,7 +12,7 @@ from flask import request, session
 app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
 @server.after_request
 def user(req):
-    user = request.cookies.get('byttTTojdr45', 'Andrew.Segal')
+    user = request.cookies.get('byttTTojdr45', 'XianD')
     req.set_cookie('user',user)
     #print(req.cookies['user'])
     return req
