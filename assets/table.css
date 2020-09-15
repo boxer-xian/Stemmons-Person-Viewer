@@ -1,0 +1,58 @@
+.case_list {
+    height: 100%;
+    width: 100%; 
+    display: flex;
+    flex-flow: column;
+    border-bottom: 1px solid lightgray;
+    font-size: 12px;
+}
+
+.case_list th:first-child, .case_list td:first-child {
+    padding: 5px;
+}
+
+.case_title {
+    width: 400px;
+}
+
+.case_list th, .case_list td {
+    padding: 5px;
+    text-align: left;
+}
+
+.case_list thead {
+    font-weight: bold;   
+    width: 99%; 
+    display: table; 
+    table-layout: fixed;
+}
+
+.case_list .head {
+    background-color: lightgray;
+}
+
+.case_list .head_filter {
+    background-color: white;
+}
+
+.case_list tbody tr {
+    border-style: hidden;
+    background-color: white;
+    width: 100%; 
+    display: table; 
+    table-layout: fixed;
+}
+
+.case_list tbody {
+    width: 100%;
+    max-height: 600px;
+    overflow-y: scroll; 
+    overflow-x: hidden; 
+    display: block;
+    flex: 0 0 auto;
+}
+
+.dash-table-container .row {
+    display: block;
+    margin: 0;
+  }

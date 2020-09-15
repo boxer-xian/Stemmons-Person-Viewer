@@ -4,7 +4,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 import dash
-from tabs import cases
+from tabs import Cases
 from app import app, server
 from flask import request, session
 
@@ -12,7 +12,7 @@ from flask import request, session
 app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
 @server.after_request
 def user(req):
-    user = request.cookies.get('byttTTojdr45','MichaelAF')
+    user = request.cookies.get('byttTTojdr45', 'Andrew.Segal')
     req.set_cookie('user',user)
     #print(req.cookies['user'])
     return req
@@ -53,7 +53,7 @@ app.layout = html.Div(
 def tabs(selected):
 
     if selected == 'Cases':
-        return cases.layout
+        return Cases.layout
 
     elif selected == 'Entites':
         return 'Entities.layout'
