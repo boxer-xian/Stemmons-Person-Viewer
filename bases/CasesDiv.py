@@ -26,6 +26,7 @@ class Cases(Base):
         if case_list is None or case_list.shape[0]==0:
             return dbc.Col('No Data Available!')
         else:
+            #print ('current:', case_list.shape)
             users = [self.user]
             return self.cases_graphs(case_list, users)
 
@@ -34,6 +35,7 @@ class Cases(Base):
         if case_list is None or case_list.shape[0]==0:
             return dbc.Col('No Data Available!')
         else:
+            #print ('lifetime:', case_list.shape)
             users = [self.user]
             return self.cases_graphs(case_list, users)
 
@@ -42,6 +44,7 @@ class Cases(Base):
         if case_list is None or case_list.shape[0]==0:
             return dbc.Col('No Data Available!')
         else:
+            #print ('hopper:', case_list.shape)
             users = CaseCalls().query_hopper(self.user)
             return self.cases_graphs(case_list, users)
 
@@ -56,7 +59,7 @@ class Cases(Base):
         user = self.user
         if identity == 'Hopper':
             users = CaseCalls().query_hopper(user)
-            print ('Hopper:', users)
+            #print ('Hopper:', users)
         else:
             users = [user]
         return CaseCalls().query_case_list(users)
@@ -77,8 +80,7 @@ class Cases(Base):
                 tag = tag + '<br>' + users[0]
             else:
                 tag = tag + '<br>Hopper'"""
-            df = case_list[case_list[col].isin(users)].reset_index(drop=True)
-            
+            df = case_list[case_list[col].str.lower().isin([s.lower() for s in users])].reset_index(drop=True)
             if df.shape[0]>0:
                 df1 = CaseHandler().groupby_case_type(df)
                 df2 = CaseHandler().groupby_system_status(df)
