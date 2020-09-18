@@ -1,14 +1,15 @@
+from tabs import Cases
+from app import app, server
 from stemmons.Stemmons_Dash import Stemmons_Dash_App
+
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 import dash
-from tabs import Cases
-from app import app, server
 from flask import request, session
 
-#possible get the cooke 
+#possible get the cookie 
 app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
 @server.after_request
 def user(req):
