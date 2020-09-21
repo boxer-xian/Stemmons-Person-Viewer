@@ -37,7 +37,7 @@ columns = ['Case ID', 'Case Title', 'Case Type', 'System Status', 'Due Status', 
 
 layout = html.Div([
     tabs, 
-    html.Div(id='content-1-cases'),
+    dbc.Spinner(id='content-1-cases'),
     html.Div(id='content-2-cases'),
     dcc.Interval(id='clock-cases', max_intervals=1, interval=1),
 

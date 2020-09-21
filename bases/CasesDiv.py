@@ -59,10 +59,11 @@ class Cases(Base):
         user = self.user
         if identity == 'Hopper':
             users = CaseCalls().query_hopper(user)
+            return CaseCalls().query_case_list(users, 'Active')
             #print ('Hopper:', users)
         else:
             users = [user]
-        return CaseCalls().query_case_list(users)
+            return CaseCalls().query_case_list(users)
         
 
     

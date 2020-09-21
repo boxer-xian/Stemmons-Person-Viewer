@@ -27,7 +27,7 @@ class CaseCalls:
         '''
         return self.db.execQuery(query)['HOPPER_SAM'].tolist()
 
-    def query_case_list(self, users):
+    def query_case_list(self, users, liferange=None):
         if len(users)==0:
             return None
 
@@ -73,8 +73,8 @@ class CaseCalls:
             or MODIFIED_BY_SAM in {users}
             )
         '''
-        #if tab=='Current':
-        #    query = query + f"and (LIST_CASE_STATUS_SYSTEM_CODE is null or LIST_CASE_STATUS_SYSTEM_CODE!='CLOSE')"
+        if liferange=='Active':
+            query = query + f"and (LIST_CASE_STATUS_SYSTEM_CODE is null or LIST_CASE_STATUS_SYSTEM_CODE!='CLOSE')"
         case_list = self.db.execQuery(query)
         #case_list = app.execQuery(query, conn)
         
