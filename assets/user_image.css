@@ -2,6 +2,8 @@
     border-radius: 50%;
     border: solid;
     border-width: 2px;
+    width: 129px;
+    height: 129px
 }
 .user{
     padding:15px

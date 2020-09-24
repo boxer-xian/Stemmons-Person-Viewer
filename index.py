@@ -7,16 +7,28 @@ import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 import dash
-from flask import request, session
+from flask import request, session, make_response
+
 
 #possible get the cookie 
 app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
 @server.after_request
 def user(req):
-    user = request.cookies.get('byttTTojdr45', 'MarkF')
-    req.set_cookie('user',user)
-    #print(req.cookies['user'])
-    return req
+    if 'User' in request.args.keys():
+        # overrise login cookie to view others profiles
+        user = request.args.get('User')
+        req.set_cookie('user', user)
+        return req
+
+    elif request.url_rule == '/':
+        # if it is the initial rqeuest and there is no Username
+        # use login cookie
+        user = request.cookies.get('byttTTojdr45', 'XianD')
+        req.set_cookie('user', user)
+        return req
+
+    else:
+        return req
 
 
 app.layout = html.Div(
@@ -44,10 +56,15 @@ app.layout = html.Div(
     html.Div(
         [html.Div(id='content')],
      className='right'     
-    )
+    ),
+
+    #dcc.Location(id='url', refresh=False),
+    #html.Div(id='user', style={'display': 'none'})
     ],
     className='main'
 )
+
+
 
 @app.callback(Output('content', 'children'), 
              [Input('tabs', 'active_tab')])
@@ -75,3 +92,7 @@ def image(n_intervals):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+"""    app.run_server(debug=False, host='10.1.5.128', port='8050')
+else:
+    app.requests_pathname_prefix = '/?User=MarcV'"""
+    

@@ -47,13 +47,13 @@ def filter_table(df, filter_values, filter_ids, url_col=[]):
 
 # sort dataframe
 # odd click times on header name, sort as asc; even click tiems on header name, sort as desc
-def sort_table(df, header_clicks, header_ids, previous_header_clicks, url_col=[]):
+def sort_table(df, header_clicks, header_ids, previous_header_clicks, url_col=[], col_filter='date'):
     if any(header_clicks):
         index, n_clicks = list_diff(header_clicks, previous_header_clicks)
         col = header_ids[index]['colname']
         sort = True if n_clicks%2==1 else False
         # date or datetime column sorting
-        if 'date' in col.lower():   # or 'due' in col.lower()
+        if col_filter in col.lower():   # or 'due' in col.lower()
             df[col+'2'] = pd.to_datetime(df[col])
             df = df.sort_values(col+'2', ascending=sort, na_position='last').reset_index(drop=True)
             df = df.drop(col+'2', axis=1)
@@ -64,9 +64,9 @@ def sort_table(df, header_clicks, header_ids, previous_header_clicks, url_col=[]
             df = df.sort_values(col, ascending=sort, na_position='last').reset_index(drop=True)
     return df
 
-def filter(df, col, keyword, url_col=[]):
+def filter(df, col, keyword, url_col=[], key_filters=['na', 'n/a', 'nan', 'nat', 'null', 'none', ' ']):
     keyword = keyword.lower()
-    if keyword in ['na', 'n/a', 'nan', 'nat', 'null', 'none', ' ']:
+    if keyword in key_filters:
         return df[df[col].isnull() | (df[col].astype(str)=='')].reset_index(drop=True)
     keyword = keyword.strip()
     

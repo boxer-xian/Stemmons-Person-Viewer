@@ -27,6 +27,17 @@ class CaseCalls:
         '''
         return self.db.execQuery(query)['HOPPER_SAM'].tolist()
 
+    def query_team(self, user):
+        query = f'''
+        select SHORT_USER_NAME, EmpDisplayName as DISPLAY_NAME
+        from [DEPARTMENTS].[dbo].[vw_Table_DEPARTMENT_STRUCTURE_EMPLOYEE_MASTER]
+        where ACTIVE=1
+        and Manager_SHORT_USER_NAME='{user}'
+        order by DISPLAY_NAME
+        '''
+        return self.db.execQuery(query)
+        #['SHORT_USER_NAME'].tolist()
+
     def query_case_list(self, users, liferange=None):
         if len(users)==0:
             return None
@@ -90,5 +101,9 @@ class CaseCalls:
         repalce empty string with SAM '''
         for c1, c2 in zip(['Created By', 'Owner', 'Assigned To', 'Last Modified By'], ['CREATED_BY_SAM', 'OWNER_SAM', 'ASSIGNED_TO_SAM', 'MODIFIED_BY_SAM']):
             case_list[c1] = case_list[c1].replace({'': None}).fillna(case_list[c2])
+
+        #case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].replace({'NaT': pd.to_datetime('today')})) - pd.to_datetime(case_list['Created Date'])).dt.days
+        case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].fillna(pd.to_datetime('today'))) - pd.to_datetime(case_list['Created Date'])).dt.days
+        
         return case_list
 
