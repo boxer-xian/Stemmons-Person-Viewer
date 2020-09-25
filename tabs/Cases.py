@@ -41,9 +41,8 @@ layout = html.Div([
     tabs, 
     dbc.Spinner(id='content-1-cases'),
     html.Div(id='content-2-cases'),
-    dcc.Interval(id='clock-cases', max_intervals=1, interval=1),
+    #dcc.Interval(id='clock-cases', max_intervals=1, interval=1),
 
-    
     dcc.Store(id='user-cases', storage_type='memory'),
     dcc.Store(id='hopper-cases', storage_type='memory'),
     dcc.Store(id='team-cases', storage_type='memory'),
@@ -63,16 +62,15 @@ layout = html.Div([
 
 @app.callback(
     Output('cases-tabs', 'children'),
-    [Input('clock-cases', 'n_intervals')],
+    #[Input('clock-cases', 'n_intervals')],
+    [Input('param_user', 'data')],
     [State('cases-tabs', 'children')]
 )
-def append_tabs(n_intervals, cases_tabs):
-    #print(n_intervals)
-    if n_intervals != 1:
+def append_tabs(user, cases_tabs):
+    if user is None:
         return dash.exceptions.PreventUpdate
 
-    user = request.cookies['user']
-    #print ('user', user)
+    #user = request.cookies['user']
 
     hoppers = CaseCalls().query_hopper(user)
     if len(hoppers)>0:
@@ -90,25 +88,19 @@ def append_tabs(n_intervals, cases_tabs):
 add Team tab when user has supervisees '''
 @app.callback(
     [Output('user-cases', 'data'), Output('hopper-cases', 'data'), Output('team-cases', 'data')],
-    [Input('clock-cases', 'n_intervals')],
+    #[Input('clock-cases', 'n_intervals')],
+    [Input('param_user', 'data')]
 )
-def store(n_intervals):
-    #print(n_intervals)
-    if n_intervals != 1:
+def store(user):
+    if user is None:
         return dash.exceptions.PreventUpdate
     
-    user = request.cookies['user']
+    #user = request.cookies['user']
     cases = Cases(user)
 
     user_cases = cases.get_case_list()
     hopper_cases = cases.get_case_list('Hopper')
     team_cases = cases.get_case_list('Team')
-
-    """print (user, 'user_cases', user_cases.shape)
-    if hopper_cases is not None and hopper_cases.shape[0]>0: 
-        print (user, 'hopper_cases', hopper_cases.shape)
-    if team_cases is not None: 
-        print (user, 'team_cases', team_cases.shape)"""
 
     return CaseHandler().to_json(user_cases), CaseHandler().to_json(hopper_cases), CaseHandler().to_json(team_cases)
 
@@ -116,11 +108,16 @@ def store(n_intervals):
 ''' pick data according to selected tab,
 show table header first '''
 @app.callback(
-    [Output('content-2-cases', 'children'), Output('table-data', 'children')],
-    [Input('cases-tabs', 'active_tab'), Input('user-cases', 'data'), Input('hopper-cases', 'data'), Input('team-cases', 'data')]
+    [Output('content-2-cases', 'children'), 
+     Output('table-data', 'children')],
+    [Input('param_user', 'data'), 
+     Input('cases-tabs', 'active_tab'), 
+     Input('user-cases', 'data'), 
+     Input('hopper-cases', 'data'), 
+     Input('team-cases', 'data')]
 )
-def index(selection, user_cases, hopper_cases, team_cases):
-    user = request.cookies['user']
+def index(user, selection, user_cases, hopper_cases, team_cases):
+    #user = request.cookies['user']
     cases = Cases(user)
 
     user_cases = pd.read_json(user_cases, orient='split')
@@ -142,11 +139,6 @@ def index(selection, user_cases, hopper_cases, team_cases):
         return cases.table(columns), hopper_cases
 
     elif selection == 'Team':
-        ''' not showing Last Modified cases in Lifetime '''
-        '''case_list = team_cases[(team_cases['CREATED_BY_SAM'].str.lower()==user.lower()) | 
-                                (team_cases['ASSIGNED_TO_SAM'].str.lower()==user.lower()) |
-                                (team_cases['OWNER_SAM'].str.lower()==user.lower())].reset_index(drop=True)'''
-        #return cases.table(columns), CaseHandler().to_json(case_list)
         return cases.table(columns), team_cases
 
     elif selection == 'Relationships':
@@ -157,18 +149,23 @@ def index(selection, user_cases, hopper_cases, team_cases):
 filter table,
 and according to filtered table data adjusting graphs '''
 @app.callback(
-    [Output('content-1-cases', 'children'), Output('filtered-data', 'children')],
-    [Input('cases-tabs', 'active_tab'), Input('table-data', 'children'), Input({'type': 'filter', 'colname': ALL}, 'value'), Input({'type': 'filter', 'colname': ALL}, 'id')]
+    [Output('content-1-cases', 'children'), 
+     Output('filtered-data', 'children')],
+    [Input('param_user', 'data'),
+     Input('cases-tabs', 'active_tab'), 
+     Input('table-data', 'children'), 
+     Input({'type': 'filter', 'colname': ALL}, 'value'), 
+     Input({'type': 'filter', 'colname': ALL}, 'id')]
 )
-def filter(selection, data, filter_values, filter_ids):
-    if data is None: 
+def filter(user, selection, data, filter_values, filter_ids):
+    if user is None or data is None: 
         #raise dash.exceptions.PreventUpdate
         return dbc.Col('No Data Available!'), None
     data = pd.read_json(data, orient='split')
     data = sdt.filter_table(data, filter_values, filter_ids, url_col=['Case Title'])  
     
 
-    user = request.cookies['user']
+    #user = request.cookies['user']
     cases = Cases(user)
     #return cases.cases_graphs(data, selection), data.to_json(orient='split')
     if selection == 'Current':
@@ -199,8 +196,12 @@ odd number of times: ascending, even number of times: descending
 when table data is too big, only show the first 1000 rows
 '''
 @app.callback(
-    [Output('table-body', 'children'), Output('download-link-table', 'href'), Output('previous-header-clicks', 'children')],
-    [Input('filtered-data', 'children'), Input({'type': 'header', 'colname': ALL}, 'n_clicks'), Input({'type': 'header', 'colname': ALL}, 'id')],
+    [Output('table-body', 'children'), 
+     Output('download-link-table', 'href'), 
+     Output('previous-header-clicks', 'children')],
+    [Input('filtered-data', 'children'), 
+     Input({'type': 'header', 'colname': ALL}, 'n_clicks'), 
+     Input({'type': 'header', 'colname': ALL}, 'id')],
     [State('previous-header-clicks', 'children')]
 )
 def sort(data, header_clicks, header_ids, previous_header_clicks):

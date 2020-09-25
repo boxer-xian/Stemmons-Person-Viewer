@@ -29,7 +29,7 @@ class Cases(Base):
             users = [self.user]
             #return self.cases_graphs(case_list, users)
             rows = []
-            for tag in ['Created', 'Assigned To', 'Owned', 'Last Modified']:
+            for tag in ['Assigned To', 'Created', 'Owned', 'Last Modified']:
                 rows.append(self.cases_graph(case_list, users, tag))
             return html.Div(rows)
 
@@ -42,7 +42,7 @@ class Cases(Base):
             users = [self.user]
             #return self.cases_graphs(case_list, users)
             rows = []
-            for tag in ['Created', 'Assigned To', 'Owned']:
+            for tag in ['Assigned To', 'Created', 'Owned']:
                 rows.append(self.cases_graph(case_list, users, tag))
             return html.Div(rows)
 
@@ -54,7 +54,7 @@ class Cases(Base):
             users = CaseCalls().query_hopper(self.user)
             #return self.cases_graphs(case_list, users)
             rows = []
-            for tag in ['Created', 'Assigned To', 'Owned', 'Last Modified']:
+            for tag in ['Assigned To', 'Created', 'Owned', 'Last Modified']:
                 rows.append(self.cases_graph(case_list, users, tag))
             return html.Div(rows)
 
@@ -89,9 +89,10 @@ class Cases(Base):
 
 
     def cases_graph(self, case_list, users, tag):
-        tag_dict = {'Created': 'CREATED_BY_SAM', 'Assigned To':'ASSIGNED_TO_SAM', 'Owned':'OWNER_SAM', 'Last Modified':'MODIFIED_BY_SAM'}
+        tag_dict = {'Assigned To':'ASSIGNED_TO_SAM', 'Created': 'CREATED_BY_SAM', 'Owned':'OWNER_SAM', 'Last Modified':'MODIFIED_BY_SAM'}
         col = tag_dict[tag]
         df = case_list[case_list[col].str.lower().isin([s.lower() for s in users])].reset_index(drop=True)
+        
         if df.shape[0]>0:
             df1 = CaseHandler().groupby_case_type(df)
             df2 = CaseHandler().groupby_system_status(df)
@@ -112,9 +113,10 @@ class Cases(Base):
             #print (user, display_name)
             case_count = []
             pct_past_due = []
-            oldest_days = 0
+            oldest_days = []
+            #oldest_days = 0
 
-            for col in ['CREATED_BY_SAM', 'ASSIGNED_TO_SAM', 'OWNER_SAM']:   #, 'MODIFIED_BY_SAM'
+            for col in ['ASSIGNED_TO_SAM', 'CREATED_BY_SAM', 'OWNER_SAM']:   #, 'MODIFIED_BY_SAM'
                 df = case_list[case_list[col].str.lower()==user.lower()].reset_index(drop=True)
                 
                 active_cases = df['Case ID'].nunique()
@@ -123,7 +125,8 @@ class Cases(Base):
                 pct_past_due.append(pct)
 
                 days = df['Case Life Days'].max() if df.shape[0]>0 else 0
-                oldest_days = oldest_days if oldest_days > days else days
+                oldest_days.append(days)
+                #oldest_days = oldest_days if oldest_days > days else days
             cards.append(self.user_card(user, display_name, case_count, pct_past_due, oldest_days))
 
         return html.Div(dbc.Row(cards))
@@ -138,27 +141,24 @@ class Cases(Base):
 
 
     def user_card(self, username, display_name, case_count, pct_past_due, oldest_days):
-        #url = '10.1.5.128/User=?'
-        url = f'?User={username}'
+        #url = f'?User={username}'
         return dbc.Col(
-            dbc.Card([
+            dbc.Card(
                 dbc.CardBody([
                     #html.H6(display_name, className='card-title'),
-                    html.H6(html.A(display_name, href=url, target='_blank'), className='card-title'),
+                    html.H6(html.A(display_name, href=username, target='_blank'), className='card-title'),
                     html.P('(Current)', className='card-text'),
-                    html.P('Created: {:,}, Past Due: {:.1%}'.format(case_count[0], pct_past_due[0]), className='card-text'),
-                    html.P('Assigned To: {:,}, Past Due: {:.1%}'.format(case_count[1], pct_past_due[1]), className='card-text'),
-                    html.P('Owned: {:,}, Past Due: {:.1%}'.format(case_count[2], pct_past_due[2]), className='card-text'),
-                    #html.P('Last Modified: {:,},  Past Due: {:.1%}'.format(case_count[3], pct_past_due[3]), className='card-text')
-                    html.P('Oldest Case Life: {:}'.format(oldest_days), className='card-text'),
+                    html.P('Assigned To: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[0], pct_past_due[1], oldest_days[0]), className='card-text'),
+                    html.P('Created: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[1], pct_past_due[0], oldest_days[1]), className='card-text'),
+                    html.P('Owned: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[2], pct_past_due[2], oldest_days[2]), className='card-text'),
+                    #html.P('Last Modified: {},  Past Due: {:.1%}'.format(case_count[3], pct_past_due[3]), className='card-text')
+                    #html.P('Oldest Case Life: {}'.format(oldest_days), className='card-text'),
                 ]), 
-                #dbc.CardImg(src=f'http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username={username}'),
-            ],
                 style={'height': '220px', 'border': '1px solid gray', 'border-radius': '10px', 'font-size': '13px'} 
             ),
             width={'size': 3},
             style={'padding': '15px'}
-            )
+        )
 
 
     def bar_graph(self, data, x, y, title=None, showlegend=True, sort_x=False):
