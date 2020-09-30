@@ -41,7 +41,7 @@ class CaseCalls:
     def query_case_list(self, users, liferange=None):
         if len(users)==0:
             return None
-
+        
         users = tuple(users) if len(users)>1 else tuple(users*2)
         query = f'''
         select a.[CASE_ID] as [Case ID]
@@ -104,6 +104,6 @@ class CaseCalls:
 
         #case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].replace({'NaT': pd.to_datetime('today')})) - pd.to_datetime(case_list['Created Date'])).dt.days
         case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].fillna(pd.to_datetime('today'))) - pd.to_datetime(case_list['Created Date'])).dt.days
-        
+        #print ('query:', users, case_list.shape)
         return case_list
 

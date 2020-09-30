@@ -147,7 +147,7 @@ class Cases(Base):
                 dbc.CardBody([
                     #html.H6(display_name, className='card-title'),
                     html.H6(html.A(display_name, href=username, target='_blank'), className='card-title'),
-                    html.P('(Current)', className='card-text'),
+                    html.P('Current:', className='card-text'),
                     html.P('Assigned To: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[0], pct_past_due[1], oldest_days[0]), className='card-text'),
                     html.P('Created: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[1], pct_past_due[0], oldest_days[1]), className='card-text'),
                     html.P('Owned: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[2], pct_past_due[2], oldest_days[2]), className='card-text'),
