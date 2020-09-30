@@ -83,6 +83,21 @@ def user(pathname):
     return user
 
 
+"""@app.callback(
+    Output('tabs', 'children'),
+    [Input('param_user', 'data')],
+    [State('tabs', 'children')]
+)
+def add_tabs(user, tabs):
+    if user is None:
+        return tabs
+    else:
+        #application = EntityCalls()
+        return tabs"""
+        
+
+
+
 @app.callback(Output('content', 'children'), 
              [Input('tabs', 'active_tab')])
 def tabs(selected):
@@ -121,8 +136,7 @@ def image(user):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
-"""    app.run_server(debug=False, host='10.1.5.128', port='8050')
-else:
-    app.requests_pathname_prefix = '/?User=MarcV'"""
+    #app.run_server(debug=True)
+    app.run_server(debug=False, host='10.1.5.128', port='8050')
+
     

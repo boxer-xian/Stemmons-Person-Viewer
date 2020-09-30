@@ -68,7 +68,7 @@ layout = html.Div([
 )
 def append_tabs(user, cases_tabs):
     if user is None:
-        return dash.exceptions.PreventUpdate
+        raise dash.exceptions.PreventUpdate
 
     #user = request.cookies['user']
 
