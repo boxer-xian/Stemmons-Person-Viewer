@@ -1,11 +1,12 @@
-from tabs import Cases
+from tabs import Cases, Application
+from db.EntityCalls import EntityCalls
 from app import app, server
 from stemmons.Stemmons_Dash import Stemmons_Dash_App
 
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash
 from flask import request, session, make_response
 
@@ -79,27 +80,32 @@ def user(pathname):
         param = pathname.split('/')[-1]
         if len(param)>0:
             user = param
-
+    print ('\npathname:', pathname, user)
     return user
 
 
-"""@app.callback(
-    Output('tabs', 'children'),
+@app.callback(
+    Output('tabs', 'children'), #Output('application_id', 'children')],
     [Input('param_user', 'data')],
     [State('tabs', 'children')]
 )
 def add_tabs(user, tabs):
     if user is None:
-        return tabs
-    else:
-        #application = EntityCalls()
-        return tabs"""
+        raise dash.exceptions.PreventUpdate
+    
+    application_id = EntityCalls().user_application(user)
+    print (application_id)
+    if len(application_id)>0:
+        tabs.append(dbc.Tab(label='Application', tab_id='Application'))
         
+    return tabs
+    #, application_id
+    
 
 
 
 @app.callback(Output('content', 'children'), 
-             [Input('tabs', 'active_tab')])
+             [Input('tabs', 'active_tab')])   #, Input('application_id', 'children')
 def tabs(selected):
 
     if selected == 'Cases':
@@ -108,8 +114,8 @@ def tabs(selected):
     elif selected == 'Entites':
         return 'Entities.layout'
     
-    #elif selected == 'Quest':
-        #return 'Quest.layout'
+    elif selected == 'Application':
+        return Application.layout
 
 
 """@app.callback(
@@ -128,15 +134,17 @@ def image(n_intervals):
     Output('user-photo', 'src'),
     [Input('param_user', 'data')])
 def image(user):
-    if user is not None:
+    if user is not None: 
         #if production this should be pulled form teh db
         return f'http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username={user}'
+        print ('image:', user)
     else:
         raise dash.exceptions.PreventUpdate
+        
 
 
 if __name__ == '__main__':
-    #app.run_server(debug=True)
-    app.run_server(debug=False, host='10.1.5.128', port='8050')
+    app.run_server(debug=True)
+    #app.run_server(debug=True, host='10.1.5.147', port='8050')
 
     
