@@ -45,12 +45,9 @@ layout = html.Div([
     html.Div(id='content-2-cases'),
     #dcc.Interval(id='clock-cases', max_intervals=1, interval=1),
 
-    #dcc.Store(id='user-cases', storage_type='memory'),
-    #dcc.Store(id='hopper-cases', storage_type='memory'),
-    #dcc.Store(id='team-cases', storage_type='memory'),
-    html.Div(id='user-cases', style={'display':'none'}),
-    html.Div(id='hopper-cases', style={'display':'none'}),
-    html.Div(id='team-cases', style={'display':'none'}),
+    dcc.Store(id='user-cases', storage_type='memory'),
+    dcc.Store(id='hopper-cases', storage_type='memory'),
+    dcc.Store(id='team-cases', storage_type='memory'),
 
     # used for sharing data between callbacks
     html.Div(id='table-data', style={'display':'none'}),
@@ -92,15 +89,13 @@ def append_tabs(user, cases_tabs):
 ''' add Hopper tab when user has hoppers,
 add Team tab when user has supervisees '''
 @app.callback(
-    #[Output('user-cases', 'data'), Output('hopper-cases', 'data'), Output('team-cases', 'data')],
-    [Output('user-cases', 'children'), Output('hopper-cases', 'children'), Output('team-cases', 'children')],
+    [Output('user-cases', 'data'), Output('hopper-cases', 'data'), Output('team-cases', 'data')],
     #[Input('clock-cases', 'n_intervals')],
     [Input('param_user', 'data')]
 )
 def store(user):
     if user is None:
         raise dash.exceptions.PreventUpdate
-    # ('store', 'Cases:', user)
     #user = request.cookies['user']
     #print ('store:', user)
     cases = Cases(user)
@@ -119,12 +114,9 @@ show table header first '''
      Output('table-data', 'children')],
     [Input('param_user', 'data'), 
      Input('cases-tabs', 'active_tab'), 
-     #Input('user-cases', 'data'), 
-     #Input('hopper-cases', 'data'), 
-     #Input('team-cases', 'data'),
-     Input('user-cases', 'children'), 
-     Input('hopper-cases', 'children'), 
-     Input('team-cases', 'children'),
+     Input('user-cases', 'data'), 
+     Input('hopper-cases', 'data'), 
+     Input('team-cases', 'data'),
      ]
 )
 def index(user, selection, user_cases, hopper_cases, team_cases):
@@ -174,7 +166,6 @@ def filter(user, selection, data, filter_values, filter_ids):
         raise dash.exceptions.PreventUpdate
     if data is None:
         return dbc.Col('No Data Available!'), None
-    #print ('content-1', 'Cases:', user)
     data = pd.read_json(data, orient='split')
     data = sdt.filter_table(data, filter_values, filter_ids, url_col=['Case Title'])  
     

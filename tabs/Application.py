@@ -27,6 +27,5 @@ def index(user):
     items = []
     for i in application_id:
         title = EntityCalls().query_title(i)['TEXT'].values[0]
-        print (title)
         items.append(dbc.Col(html.A(title, href=url+str(i), target='_blank')))
     return dbc.Row(items)

@@ -82,7 +82,6 @@ def user(pathname):
         user = pathname.split('/')[-1]
     else:
         user = request.cookies['user']
-    #print ('pathname:', pathname, 'user:', user)
     return user
 
 
@@ -136,7 +135,6 @@ def image(n_intervals):
 def image(user):
     if user is not None: 
         #if production this should be pulled form teh db
-        #print ('image:', user)
         return f'http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username={user}'
     else:
         raise dash.exceptions.PreventUpdate
