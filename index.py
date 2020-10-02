@@ -10,7 +10,7 @@ from dash.dependencies import Input, Output, State
 import dash
 from flask import request, session, make_response
 
-server= app.server
+server = app.server
 
 #possible get the cookie 
 app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
@@ -59,7 +59,6 @@ app.layout = html.Div(
             className='right'     
         ),
 
-
         dcc.Store(id='param_user', storage_type='session'),
         dcc.Location(id='url', refresh=False),
     ],
@@ -73,36 +72,41 @@ store username in session storage, diffrent users' pages could be opened at the 
 if use cookie, can only open one person's page at one time '''
 @app.callback(
     Output('param_user', 'data'),
-    [Input('url', 'pathname')]
-)
+    [Input('url', 'pathname')])
 def user(pathname):
     pathname = str(pathname)
+    user = request.cookies['user']
 
     if pathname.startswith('/'):
-        user = pathname.split('/')[-1]
-    else:
-        user = request.cookies['user']
+        param = pathname.split('/')[-1]
+        if len(param)>0:
+            user = param
+    #print ('\npathname:', pathname, user)
     return user
 
 
-"""@app.callback(
-    Output('tabs', 'children'),
+@app.callback(
+    Output('tabs', 'children'), #Output('application_id', 'children')],
     [Input('param_user', 'data')],
     [State('tabs', 'children')]
 )
 def add_tabs(user, tabs):
     if user is None:
-        return tabs
-    else:
-        #application = EntityCalls()
-        return tabs"""
+        raise dash.exceptions.PreventUpdate
+    
+    application_id = EntityCalls().user_application(user)
+    #print (application_id)
+    if len(application_id)>0:
+        tabs.append(dbc.Tab(label='Application', tab_id='Application'))
+        
+    return tabs
+    #, application_id
+    
 
 
 
-@app.callback(
-    Output('content', 'children'), 
-    [Input('tabs', 'active_tab')]
-)
+@app.callback(Output('content', 'children'), 
+             [Input('tabs', 'active_tab')])   #, Input('application_id', 'children')
 def tabs(selected):
 
     if selected == 'Cases':
@@ -127,23 +131,21 @@ def image(n_intervals):
     else:
         raise dash.exceptions.PreventUpdate"""
 
-
 @app.callback(
     Output('user-photo', 'src'),
-    [Input('param_user', 'data')]
-)
+    [Input('param_user', 'data')])
 def image(user):
     if user is not None: 
         #if production this should be pulled form teh db
         return f'http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username={user}'
+        #print ('image:', user)
     else:
         raise dash.exceptions.PreventUpdate
         
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
-    #app.run_server(debug=True, host='10.1.5.147', port='8050')
-    #app.run_server(debug=False, host='192.168.0.147', port='8050')
+    #app.run_server(debug=True)
+    app.run_server(debug=False, host='192.168.0.147', port='8055', threaded=False)
 
     

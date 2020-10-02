@@ -16,7 +16,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash
 
-#import time
+import time
 
 
 tabs = dbc.Tabs(
@@ -71,9 +71,10 @@ layout = html.Div([
 def append_tabs(user, cases_tabs):
     if user is None:
         raise dash.exceptions.PreventUpdate
-    #print ('append_tabs', 'Cases:', user)
-    #user = request.cookies['user']
+
     
+    #user = request.cookies['user']
+    #print ('append_tabs:', user)
     hoppers = CaseCalls().query_hopper(user)
     if len(hoppers)>0:
         cases_tabs.append(dbc.Tab(label='Hopper', tab_id='Hopper'))
@@ -96,6 +97,8 @@ add Team tab when user has supervisees '''
 def store(user):
     if user is None:
         raise dash.exceptions.PreventUpdate
+
+    
     #user = request.cookies['user']
     #print ('store:', user)
     cases = Cases(user)
@@ -116,14 +119,17 @@ show table header first '''
      Input('cases-tabs', 'active_tab'), 
      Input('user-cases', 'data'), 
      Input('hopper-cases', 'data'), 
-     Input('team-cases', 'data'),
-     ]
+     Input('team-cases', 'data')]
 )
 def index(user, selection, user_cases, hopper_cases, team_cases):
     #user = request.cookies['user']
-    if user_cases is None: raise dash.exceptions.PreventUpdate
-    #print ('content-2', 'Cases:', user)
+    if user is None: 
+        raise dash.exceptions.PreventUpdate
+
+    
+    #print ('content-2:', user)
     cases = Cases(user)
+
     user_cases = pd.read_json(user_cases, orient='split')
     #team_cases = pd.read_json(team_cases, orient='split')
 
@@ -166,6 +172,8 @@ def filter(user, selection, data, filter_values, filter_ids):
         raise dash.exceptions.PreventUpdate
     if data is None:
         return dbc.Col('No Data Available!'), None
+    
+    #print ('content-1:', user)
     data = pd.read_json(data, orient='split')
     data = sdt.filter_table(data, filter_values, filter_ids, url_col=['Case Title'])  
     
