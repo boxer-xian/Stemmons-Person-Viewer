@@ -74,7 +74,7 @@ layout = html.Div([
 def append_tabs(user, cases_tabs):
     if user is None:
         raise dash.exceptions.PreventUpdate
-    print ('append_tabs', 'Cases:', user)
+    #print ('append_tabs', 'Cases:', user)
     #user = request.cookies['user']
     
     hoppers = CaseCalls().query_hopper(user)
@@ -100,7 +100,7 @@ add Team tab when user has supervisees '''
 def store(user):
     if user is None:
         raise dash.exceptions.PreventUpdate
-    print ('store', 'Cases:', user)
+    # ('store', 'Cases:', user)
     #user = request.cookies['user']
     #print ('store:', user)
     cases = Cases(user)
@@ -130,7 +130,7 @@ show table header first '''
 def index(user, selection, user_cases, hopper_cases, team_cases):
     #user = request.cookies['user']
     if user_cases is None: raise dash.exceptions.PreventUpdate
-    print ('content-2', 'Cases:', user)
+    #print ('content-2', 'Cases:', user)
     cases = Cases(user)
     user_cases = pd.read_json(user_cases, orient='split')
     #team_cases = pd.read_json(team_cases, orient='split')
@@ -174,7 +174,7 @@ def filter(user, selection, data, filter_values, filter_ids):
         raise dash.exceptions.PreventUpdate
     if data is None:
         return dbc.Col('No Data Available!'), None
-    print ('content-1', 'Cases:', user)
+    #print ('content-1', 'Cases:', user)
     data = pd.read_json(data, orient='split')
     data = sdt.filter_table(data, filter_values, filter_ids, url_col=['Case Title'])  
     
