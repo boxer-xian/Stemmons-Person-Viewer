@@ -16,6 +16,8 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash
 
+#import time
+
 
 tabs = dbc.Tabs(
                 [
@@ -70,8 +72,9 @@ def append_tabs(user, cases_tabs):
     if user is None:
         raise dash.exceptions.PreventUpdate
 
+    
     #user = request.cookies['user']
-
+    #print ('append_tabs:', user)
     hoppers = CaseCalls().query_hopper(user)
     if len(hoppers)>0:
         cases_tabs.append(dbc.Tab(label='Hopper', tab_id='Hopper'))
@@ -93,9 +96,11 @@ add Team tab when user has supervisees '''
 )
 def store(user):
     if user is None:
-        return dash.exceptions.PreventUpdate
+        raise dash.exceptions.PreventUpdate
+
     
     #user = request.cookies['user']
+    #print ('store:', user)
     cases = Cases(user)
 
     user_cases = cases.get_case_list()
@@ -118,6 +123,11 @@ show table header first '''
 )
 def index(user, selection, user_cases, hopper_cases, team_cases):
     #user = request.cookies['user']
+    if user is None: 
+        raise dash.exceptions.PreventUpdate
+
+    
+    #print ('content-2:', user)
     cases = Cases(user)
 
     user_cases = pd.read_json(user_cases, orient='split')
@@ -158,9 +168,12 @@ and according to filtered table data adjusting graphs '''
      Input({'type': 'filter', 'colname': ALL}, 'id')]
 )
 def filter(user, selection, data, filter_values, filter_ids):
-    if user is None or data is None: 
-        #raise dash.exceptions.PreventUpdate
+    if user is None: 
+        raise dash.exceptions.PreventUpdate
+    if data is None:
         return dbc.Col('No Data Available!'), None
+    
+    #print ('content-1:', user)
     data = pd.read_json(data, orient='split')
     data = sdt.filter_table(data, filter_values, filter_ids, url_col=['Case Title'])  
     
@@ -206,8 +219,8 @@ when table data is too big, only show the first 1000 rows
 )
 def sort(data, header_clicks, header_ids, previous_header_clicks):
     if data is None: 
-        #return None, None
         raise dash.exceptions.PreventUpdate 
+
     data = pd.read_json(data, orient='split')
     data['Case Title'] = data.apply(lambda row: [row['Case Title'], row['Case URL']], axis=1)
     data = data[columns]

@@ -80,7 +80,7 @@ def user(pathname):
         param = pathname.split('/')[-1]
         if len(param)>0:
             user = param
-    print ('\npathname:', pathname, user)
+    #print ('\npathname:', pathname, user)
     return user
 
 
@@ -94,7 +94,7 @@ def add_tabs(user, tabs):
         raise dash.exceptions.PreventUpdate
     
     application_id = EntityCalls().user_application(user)
-    print (application_id)
+    #print (application_id)
     if len(application_id)>0:
         tabs.append(dbc.Tab(label='Application', tab_id='Application'))
         
@@ -137,7 +137,7 @@ def image(user):
     if user is not None: 
         #if production this should be pulled form teh db
         return f'http://services.boxerproperty.com/userphotos/DownloadPhoto.aspx?username={user}'
-        print ('image:', user)
+        #print ('image:', user)
     else:
         raise dash.exceptions.PreventUpdate
         
@@ -146,5 +146,6 @@ def image(user):
 if __name__ == '__main__':
     app.run_server(debug=True)
     #app.run_server(debug=True, host='10.1.5.147', port='8050')
+    #app.run_server(debug=False, host='192.168.0.147', port='8050')
 
     
