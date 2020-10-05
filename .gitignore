@@ -3,3 +3,6 @@ case_list.csv
 test_on_notebook.ipynb
 test.py
 */__pycache__
+*.ipynb
+*/.vscode
+*/.ipynb_checkpoints

@@ -40,7 +40,7 @@ app.layout = html.Div(
                 dbc.Tabs(
                     [
                         dbc.Tab(label='Cases', tab_id='Cases'),
-                        dbc.Tab(label='Entities', tab_id='Entites'),
+                        #dbc.Tab(label='Entities', tab_id='Entites'),
                         #Every future page goes, here and must be added to the callback
                         #dbc.Tab(label='Quest', tab_id='Quest'),
                         
@@ -145,7 +145,7 @@ def image(user):
 
 
 if __name__ == '__main__':
-    #app.run_server(debug=True)
-    app.run_server(debug=False, host='192.168.0.147', port='8055', threaded=False)
+    app.run_server(debug=True)
+    #app.run_server(debug=False, host='192.168.0.147', port='8055')
 
     
