@@ -37,13 +37,13 @@ def index(user):
         file_id = data.loc[i, 'ENTITY_FILE_ID']
         icon_src = 'http://entities.boxerproperty.com//Download.aspx?FileID='+str(file_id)
 
-        item = application_div(search_url, app_name, icon_src)
+        item = icon_div(search_url, app_name, icon_src)
         items.append(item)
 
     return dbc.Row(items)
 
 
-def application_div(search_url, app_name, icon_src):
+def icon_div(search_url, app_name, icon_src):
     return html.Div(
         html.Div([
             html.Div(
