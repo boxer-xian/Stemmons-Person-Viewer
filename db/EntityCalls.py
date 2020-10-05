@@ -35,16 +35,24 @@ class EntityCalls:
         return self.db.execQuery(query)['ENTITY_ID'].values
 
     
-    def query_title(self, entity_id):
+    def entity_assoc_by_sys_code(self, entity_id, sys_code):
         query = f'''
         select [ENTITY_ID] --application id
             ,[TEXT]
+            ,[ENTITY_FILE_ID]
         from [BOXER_ENTITIES].[dbo].[ENTITY_ASSOC_METADATA_TEXT]
         where IS_ACTIVE = 'Y' 
         and ENTITY_ASSOC_TYPE_ID in ( select [ENTITY_ASSOC_TYPE_ID]
                                     from [BOXER_ENTITIES].[dbo].[ENTITY_ASSOC_TYPE]
-                                    where SYSTEM_CODE = 'TITLE')
+                                    where SYSTEM_CODE = '{sys_code}')
                                     
         and ENTITY_ID = {entity_id}
         '''
         return self.db.execQuery(query)
+
+    
+    def entity_title(self, entity_id):
+        return self.entity_assoc_by_sys_code(entity_id, 'TITLE')['TEXT'].values[0]
+        
+    def application_icon(self, entity_id):
+        return self.entity_assoc_by_sys_code(entity_id, 'APICN')['ENTITY_FILE_ID'].values[0]

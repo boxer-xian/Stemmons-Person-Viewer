@@ -26,6 +26,21 @@ def index(user):
     url = 'http://cases.boxerproperty.com/AppSearch/?SearchID='
     items = []
     for i in application_id:
-        title = EntityCalls().query_title(i)['TEXT'].values[0]
-        items.append(dbc.Col(html.A(title, href=url+str(i), target='_blank')))
+        title = EntityCalls().entity_title(i)
+        
+        file_id = EntityCalls().application_icon(i)
+        icon_src = 'http://entities.boxerproperty.com//Download.aspx?FileID='+str(file_id)
+
+        item = html.Div(
+            html.Div([
+                html.Div(
+                    html.A(html.Img(src=icon_src, className='Application-img'), href=url+str(i), target='_blank'),
+                    className='font-icon-wrapper AppBackgroundCover'),
+
+                html.Div(html.A(title, href=url+str(i), target='_blank'), className='Application-img-text')
+            ]),
+            className='App-image-render'
+        )
+        items.append(item)
+
     return dbc.Row(items)

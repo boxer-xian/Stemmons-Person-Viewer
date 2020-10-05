@@ -1,0 +1,31 @@
+.Application-img {
+    height: 30px !important;
+    width: 30px !important;
+}
+
+.font-icon-wrapper {
+    text-align: center;
+    border: #e9ecef solid 1px;
+    border-radius: .25rem;
+}
+
+.Application-img-text {
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 13px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.App-image-render {
+    text-align: -webkit-center;
+    width: 150px;
+}
+
+.AppBackgroundCover {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    image-rendering: -webkit-optimize-contrast;
+    margin: 5px !important;
+    padding: 8px !important;
+}
