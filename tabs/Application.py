@@ -23,21 +23,26 @@ def index(user):
         raise dash.exceptions.PreventUpdate
 
     application_id = EntityCalls().user_application(user)
+    titles = EntityCalls().entity_title(application_id)
+    icons = EntityCalls().application_icon(application_id)
+    data = pd.merge(titles[['ENTITY_ID', 'TEXT']], icons[['ENTITY_ID', 'ENTITY_FILE_ID']], on='ENTITY_ID').sort_values(['TEXT']).reset_index(drop=True)
+    
     url = 'http://cases.boxerproperty.com/AppSearch/?SearchID='
     items = []
-    for i in application_id:
-        title = EntityCalls().entity_title(i)
-        
-        file_id = EntityCalls().application_icon(i)
+    #for i in application_id:
+    for i in range(len(data)):
+        search_id = data.loc[i, 'ENTITY_ID']
+        app_name = data.loc[i, 'TEXT']
+        file_id = data.loc[i, 'ENTITY_FILE_ID']
         icon_src = 'http://entities.boxerproperty.com//Download.aspx?FileID='+str(file_id)
 
         item = html.Div(
             html.Div([
                 html.Div(
-                    html.A(html.Img(src=icon_src, className='Application-img'), href=url+str(i), target='_blank'),
+                    html.A(html.Img(src=icon_src, className='Application-img'), href=url+str(search_id), target='_blank'),
                     className='font-icon-wrapper AppBackgroundCover'),
 
-                html.Div(html.A(title, href=url+str(i), target='_blank'), className='Application-img-text')
+                html.Div(html.A(app_name, href=url+str(search_id), target='_blank'), className='Application-img-text')
             ]),
             className='App-image-render'
         )

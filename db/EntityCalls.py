@@ -32,10 +32,13 @@ class EntityCalls:
                         )
         '''
         #return app.execQuery(query, conn)
-        return self.db.execQuery(query)['ENTITY_ID'].values
+        return self.db.execQuery(query)['ENTITY_ID'].tolist()
 
     
     def entity_assoc_by_sys_code(self, entity_id, sys_code):
+        entity_id = tuple(entity_id) if len(entity_id)>1 else tuple(entity_id*2)
+        #sys_code = tuple(sys_code) if len(sys_code)>1 else tuple(sys_code*2)
+
         query = f'''
         select [ENTITY_ID] --application id
             ,[TEXT]
@@ -45,14 +48,15 @@ class EntityCalls:
         and ENTITY_ASSOC_TYPE_ID in ( select [ENTITY_ASSOC_TYPE_ID]
                                     from [BOXER_ENTITIES].[dbo].[ENTITY_ASSOC_TYPE]
                                     where SYSTEM_CODE = '{sys_code}')
-                                    
-        and ENTITY_ID = {entity_id}
+
+        and ENTITY_ID in {entity_id}
         '''
         return self.db.execQuery(query)
 
-    
+
     def entity_title(self, entity_id):
-        return self.entity_assoc_by_sys_code(entity_id, 'TITLE')['TEXT'].values[0]
-        
+        return self.entity_assoc_by_sys_code(entity_id, 'TITLE')
+
+
     def application_icon(self, entity_id):
-        return self.entity_assoc_by_sys_code(entity_id, 'APICN')['ENTITY_FILE_ID'].values[0]
+        return self.entity_assoc_by_sys_code(entity_id, 'APICN')
