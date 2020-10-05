@@ -32,20 +32,25 @@ def index(user):
     #for i in application_id:
     for i in range(len(data)):
         search_id = data.loc[i, 'ENTITY_ID']
+        search_url = url+str(search_id)
         app_name = data.loc[i, 'TEXT']
         file_id = data.loc[i, 'ENTITY_FILE_ID']
         icon_src = 'http://entities.boxerproperty.com//Download.aspx?FileID='+str(file_id)
 
-        item = html.Div(
-            html.Div([
-                html.Div(
-                    html.A(html.Img(src=icon_src, className='Application-img'), href=url+str(search_id), target='_blank'),
-                    className='font-icon-wrapper AppBackgroundCover'),
-
-                html.Div(html.A(app_name, href=url+str(search_id), target='_blank'), className='Application-img-text')
-            ]),
-            className='App-image-render'
-        )
+        item = application_div(search_url, app_name, icon_src)
         items.append(item)
 
     return dbc.Row(items)
+
+
+def application_div(search_url, app_name, icon_src):
+    return html.Div(
+        html.Div([
+            html.Div(
+                html.A(html.Img(src=icon_src, className='Application-img'), href=search_url, target='_blank'),
+                className='font-icon-wrapper AppBackgroundCover'),
+
+            html.Div(html.A(app_name, href=search_url, target='_blank'), className='Application-img-text')
+        ]),
+        className='App-image-render'
+    )
