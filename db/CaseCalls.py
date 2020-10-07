@@ -33,6 +33,7 @@ class CaseCalls:
         from [DEPARTMENTS].[dbo].[vw_Table_DEPARTMENT_STRUCTURE_EMPLOYEE_MASTER]
         where ACTIVE=1
         and Manager_SHORT_USER_NAME='{user}'
+        and SHORT_USER_NAME like '%HVAC%'  -- remove non-person account
         order by DISPLAY_NAME
         '''
         return self.db.execQuery(query)
