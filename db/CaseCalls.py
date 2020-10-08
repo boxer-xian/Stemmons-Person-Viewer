@@ -5,6 +5,7 @@ import numpy as np
 
 
 
+
 class CaseCalls:
 
     def __init__(self):
@@ -34,6 +35,7 @@ class CaseCalls:
         where ACTIVE=1
         and Manager_SHORT_USER_NAME='{user}'
         and SHORT_USER_NAME not like '%HVAC%'  -- remove non-person account
+        --and EmpLastName!=''
         order by DISPLAY_NAME
         '''
         return self.db.execQuery(query)
@@ -105,6 +107,10 @@ class CaseCalls:
 
         #case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].replace({'NaT': pd.to_datetime('today')})) - pd.to_datetime(case_list['Created Date'])).dt.days
         case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].fillna(pd.to_datetime('today'))) - pd.to_datetime(case_list['Created Date'])).dt.days
-        #print ('query:', users, case_list.shape)
+        
         return case_list
 
+
+    def security_code(self, user, case_type_id):
+        query = f"select [BOXER_CME].[dbo].[fn_Cases_GetCaseTypeSecurity]('{user}', {case_type_id}) as CODE"
+        return self.db.execQuery(query)

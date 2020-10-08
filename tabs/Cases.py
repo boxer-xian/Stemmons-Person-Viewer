@@ -72,9 +72,6 @@ def append_tabs(user, cases_tabs):
     if user is None:
         raise dash.exceptions.PreventUpdate
 
-    
-    #user = request.cookies['user']
-    #print ('append_tabs:', user)
     hoppers = CaseCalls().query_hopper(user)
     if len(hoppers)>0:
         cases_tabs.append(dbc.Tab(label='Hopper', tab_id='Hopper'))
@@ -97,10 +94,8 @@ add Team tab when user has supervisees '''
 def store(user):
     if user is None:
         raise dash.exceptions.PreventUpdate
-
     
     #user = request.cookies['user']
-    #print ('store:', user)
     cases = Cases(user)
 
     user_cases = cases.get_case_list()
@@ -122,20 +117,16 @@ show table header first '''
      Input('team-cases', 'data')]
 )
 def index(user, selection, user_cases, hopper_cases, team_cases):
-    #user = request.cookies['user']
     if user is None: 
         raise dash.exceptions.PreventUpdate
 
-    
-    #print ('content-2:', user)
     cases = Cases(user)
-
     user_cases = pd.read_json(user_cases, orient='split')
-    #team_cases = pd.read_json(team_cases, orient='split')
 
     if selection == 'Current':
         ''' assume null system code is not closed case '''
         case_list = user_cases[user_cases['STATUS_SYSTEM_CODE'].fillna('')!='CLOSE'].reset_index(drop=True)
+        #case_list = CaseHandler().security(case_list)
         return cases.table(columns), CaseHandler().to_json(case_list)
         
     elif selection == 'Lifetime':
@@ -143,12 +134,19 @@ def index(user, selection, user_cases, hopper_cases, team_cases):
         case_list = user_cases[(user_cases['CREATED_BY_SAM'].str.lower()==user.lower()) | 
                                 (user_cases['ASSIGNED_TO_SAM'].str.lower()==user.lower()) |
                                 (user_cases['OWNER_SAM'].str.lower()==user.lower())].reset_index(drop=True)
+        #case_list = CaseHandler().security(case_list)
         return cases.table(columns), CaseHandler().to_json(case_list)
 
     elif selection == 'Hopper':
+        #hopper_cases = pd.read_json(hopper_cases, orient='split')
+        #hopper_cases = CaseHandler().security(hopper_cases)
+        #return cases.table(columns), CaseHandler().to_json(hopper_cases)
         return cases.table(columns), hopper_cases
 
     elif selection == 'Team':
+        #team_cases = pd.read_json(team_cases, orient='split')
+        #team_cases = CaseHandler().security(team_cases)
+        #return cases.table(columns), CaseHandler().to_json(team_cases)
         return cases.table(columns), team_cases
 
     elif selection == 'Relationships':
@@ -173,14 +171,11 @@ def filter(user, selection, data, filter_values, filter_ids):
     if data is None:
         return dbc.Col('No Data Available!'), None
     
-    #print ('content-1:', user)
     data = pd.read_json(data, orient='split')
     data = sdt.filter_table(data, filter_values, filter_ids, url_col=['Case Title'])  
     
-
-    #user = request.cookies['user']
     cases = Cases(user)
-    #return cases.cases_graphs(data, selection), data.to_json(orient='split')
+    
     if selection == 'Current':
         #should look like cases.current(*args,**kwargs)
         return cases.current(data), data.to_json(orient='split')
@@ -222,6 +217,11 @@ def sort(data, header_clicks, header_ids, previous_header_clicks):
         raise dash.exceptions.PreventUpdate 
 
     data = pd.read_json(data, orient='split')
+    
+    ''' only show "security" cases '''
+    ''' cases will not show in tables, but will count into statistic graphs'''
+    data = CaseHandler().security(data)
+    
     data['Case Title'] = data.apply(lambda row: [row['Case Title'], row['Case URL']], axis=1)
     data = data[columns]
     data = data.sort_values(['Case Type', 'Case ID'], ascending=[True, False]).reset_index(drop=True)

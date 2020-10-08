@@ -27,7 +27,6 @@ class Cases(Base):
             return dbc.Col('No Data Available!')
         else:
             users = [self.user]
-            #return self.cases_graphs(case_list, users)
             rows = []
             for tag in ['Assigned To', 'Created', 'Owned', 'Last Modified']:
                 rows.append(self.cases_graph(case_list, users, tag))
@@ -40,7 +39,6 @@ class Cases(Base):
             return dbc.Col('No Data Available!')
         else:
             users = [self.user]
-            #return self.cases_graphs(case_list, users)
             rows = []
             for tag in ['Assigned To', 'Created', 'Owned']:
                 rows.append(self.cases_graph(case_list, users, tag))
@@ -52,7 +50,6 @@ class Cases(Base):
             return dbc.Col('No Data Available!')
         else:
             users = CaseCalls().query_hopper(self.user)
-            #return self.cases_graphs(case_list, users)
             rows = []
             for tag in ['Assigned To', 'Created', 'Owned', 'Last Modified']:
                 rows.append(self.cases_graph(case_list, users, tag))
@@ -79,9 +76,8 @@ class Cases(Base):
         if identity == 'Hopper':
             users = CaseCalls().query_hopper(user)
             return CaseCalls().query_case_list(users, 'Active')
-            #print ('Hopper:', users)
         elif identity == 'Team':
-            users = CaseCalls().query_team(user)['SHORT_USER_NAME'].unique()
+            users = CaseCalls().query_team(user)['SHORT_USER_NAME'].tolist()
             return CaseCalls().query_case_list(users, 'Active')
         else:
             users = [user]
@@ -110,11 +106,9 @@ class Cases(Base):
         for i in range(users_data.shape[0]):
             user = users_data.loc[i, 'SHORT_USER_NAME']
             display_name = users_data.loc[i, 'DISPLAY_NAME']
-            #print (user, display_name)
             case_count = []
             pct_past_due = []
             oldest_days = []
-            #oldest_days = 0
 
             for col in ['ASSIGNED_TO_SAM', 'CREATED_BY_SAM', 'OWNER_SAM']:   #, 'MODIFIED_BY_SAM'
                 df = case_list[case_list[col].str.lower()==user.lower()].reset_index(drop=True)
@@ -126,7 +120,7 @@ class Cases(Base):
 
                 days = df['Case Life Days'].max() if df.shape[0]>0 else 0
                 oldest_days.append(days)
-                #oldest_days = oldest_days if oldest_days > days else days
+                
             cards.append(self.user_card(user, display_name, case_count, pct_past_due, oldest_days))
 
         return html.Div(dbc.Row(cards))
@@ -135,7 +129,7 @@ class Cases(Base):
 
     def card(self, value, tag):
         return dbc.Card(dbc.CardBody([
-            html.H6(value, className='card-title'),
+            html.H6('{:,}'.format(value), className='card-title'),
             html.P(tag, className='card-text')
         ]), style={'height': '100px', 'border': '1px solid gray', 'border-radius': '10px', 'font-size': '13px', 'text-align': 'center'})
 
@@ -148,9 +142,9 @@ class Cases(Base):
                     #html.H6(display_name, className='card-title'),
                     html.H6(html.A(display_name, href=username, target='_blank'), className='card-title'),
                     html.P('Current:', className='card-text'),
-                    html.P('Assigned To: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[0], pct_past_due[1], oldest_days[0]), className='card-text'),
-                    html.P('Created: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[1], pct_past_due[0], oldest_days[1]), className='card-text'),
-                    html.P('Owned: {}, Past Due: {:.1%}, Oldest: {} days'.format(case_count[2], pct_past_due[2], oldest_days[2]), className='card-text'),
+                    html.P('Assigned To: {:,}, Past Due: {:.1%}, Oldest: {:,} days'.format(case_count[0], pct_past_due[1], oldest_days[0]), className='card-text'),
+                    html.P('Created: {:,}, Past Due: {:.1%}, Oldest: {:,} days'.format(case_count[1], pct_past_due[0], oldest_days[1]), className='card-text'),
+                    html.P('Owned: {:,}, Past Due: {:.1%}, Oldest: {:,} days'.format(case_count[2], pct_past_due[2], oldest_days[2]), className='card-text'),
                     #html.P('Last Modified: {},  Past Due: {:.1%}'.format(case_count[3], pct_past_due[3]), className='card-text')
                     #html.P('Oldest Case Life: {}'.format(oldest_days), className='card-text'),
                 ]), 

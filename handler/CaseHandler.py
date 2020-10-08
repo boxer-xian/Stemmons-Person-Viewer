@@ -1,4 +1,5 @@
-
+from db.CaseCalls import CaseCalls
+from flask import request 
 import pandas as pd
 
 class CaseHandler:
@@ -21,4 +22,16 @@ class CaseHandler:
         return data.to_json(orient='split') if data is not None else None
 
     
-
+    def security(self, case_list):
+        user = request.cookies['user']
+        
+        filter_out = []
+        for case_type_id in case_list['CASE_TYPE_ID'].unique().tolist():
+            sec_code = CaseCalls().security_code(user, case_type_id)
+            if sec_code.shape[0]==1 and sec_code['CODE'].values[0] in ['', 'C']:
+                filter_out.append(case_type_id)
+        
+        if len(filter_out)>0:
+            case_list = case_list[~case_list['CASE_TYPE_ID'].isin(filter_out)].reset_index(drop=True)
+        
+        return case_list
