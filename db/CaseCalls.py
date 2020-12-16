@@ -2,6 +2,7 @@
 from stemmons.dataBases import sqlDB
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 
 
@@ -41,74 +42,84 @@ class CaseCalls:
         return self.db.execQuery(query)
         #['SHORT_USER_NAME'].tolist()
 
+    def due_status(self, due_date):
+        if pd.isnull(due_date) or due_date=='' or due_date=='NaT':
+            return 'No Due Date'
+        else:
+            due_date = datetime.strptime(due_date, '%m/%d/%Y').date()
+            if  due_date > datetime.today().date():
+                return 'Not Due'
+            elif due_date < datetime.today().date():
+                return 'Past Due'
+            elif due_date == datetime.today().date():
+                return 'Due'
+
+
     def query_case_list(self, users, liferange=None):
-        if len(users)==0:
-            return None
-        
-        users = tuple(users) if len(users)>1 else tuple(users*2)
-        query = f'''
-        select a.[CASE_ID] as [Case ID]
-            ,[CASE_TYPE_ID]
-            ,[Case Title]
-            ,[Case_URL] as [Case URL]
+            if len(users)==0:
+                return None
             
-            ,[Status Type] as [Status]
-            ,b.LIST_CASE_STATUS_SYSTEM as [System Status]
-            ,b.LIST_CASE_STATUS_SYSTEM_CODE as [STATUS_SYSTEM_CODE]
-            ,[CaseDue_Status] as [Due Status]
-            ,convert(date, [Due Date Date]) as [Due Date]
-            --,[Priority Type] as [Priority]
+            users = tuple(users) if len(users)>1 else tuple(users*2)
+            query = f'''
+            select [LIST_CASE_ID] as [Case ID]
+                ,[LIST_CASE_TYPE_ID] as [CASE_TYPE_ID]
+                ,b.[NAME] as [Case Type]
+                ,[LIST_CASE_TITLE] as [Case Title]
+                ,isnull(c.[Case_URL], 'http://cases.boxerproperty.com/ViewCase.aspx?CaseID='+str([LIST_CASE_ID])) as [Case URL]
+                
+                ,[LIST_CASE_STATUS_VALUE] as [Status]
+                ,[LIST_CASE_STATUS_SYSTEM] as [System Status]
+                ,[LIST_CASE_STATUS_SYSTEM_CODE] as [STATUS_SYSTEM_CODE]
+                ,[LIST_CASE_DUE] as [Due Date]
+                
+                ,[LIST_CASE_CREATED_BY_SAM] as [CREATED_BY_SAM]
+                ,[LIST_CASE_ASSGN_TO_SAM] as [ASSIGNED_TO_SAM]
+                ,[LIST_CASE_OWNER_SAM] as [OWNER_SAM]
+                ,[LIST_CASE_MODIFIED_BY_SAM] as [MODIFIED_BY_SAM]
+                
+                ,[LIST_CASE_CREATED_BY_DISPLAY_NAME] as [Created By]
+                ,[LIST_CASE_OWNER_DISPLAY_NAME] as [Owner]
+                ,[LIST_CASE_ASSGN_TO_DISPLAY_NAME] as [Assigned To]
+                ,[LIST_CASE_MODIFIED_BY_DISPLAY_NAME] as [Last Modified By]
+                
+                ,convert(date, [LIST_CASE_CREATED_DATETIME]) as [Created Date]
+                ,convert(date, [LIST_CASE_MODIFIED_DATETIME]) as [Last Modified Date]
+                ,convert(date, [LIST_CASE_CLOSED_DATETIME]) as [Closed Date]
+                ,convert(date, [LIST_CASE_ASSGN_DATETIME]) as [Assigned Date]
+                
+            from [BOXER_CME].[dbo].[CASE_LIST] a
+            join [BOXER_CME].[dbo].[CASE_TYPE] b
+            on a.LIST_CASE_TYPE_ID = b.CASE_TYPE_ID and b.IS_ACTIVE='Y'
+            left join [FACTS].[dbo].[vw_FACTS_DYN_CASE_LIST] c
+            on a.LIST_CASE_ID = c.CASE_ID
+            where (LIST_CASE_CREATED_BY_SAM in {users} 
+                or LIST_CASE_ASSGN_TO_SAM in {users}
+                or LIST_CASE_OWNER_SAM in {users}
+                or LIST_CASE_MODIFIED_BY_SAM in {users}
+                )
+            '''
+            if liferange=='Active':
+                query = query + f"and (LIST_CASE_STATUS_SYSTEM_CODE is null or LIST_CASE_STATUS_SYSTEM_CODE!='CLOSE')"
+            case_list = self.db.execQuery(query)
+            #case_list = app.execQuery(query)
             
-            ,[CREATED_BY_SAM]
-            ,[ASSIGNED_TO_SAM]
-            ,[Owned_by_SAM] as [OWNER_SAM]
-            ,[MODIFIED_BY_SAM]
+            case_list['Case Title'] = case_list['Case Title'].fillna('NO TITLE').replace({'': 'NO TITLE'})
+            #if case_list.shape[0]>0:
+            for c in ['Due Date', 'Created Date', 'Last Modified Date', 'Closed Date']:
+                case_list[c] = pd.to_datetime(case_list[c].str.replace('Z', '').str.replace('T', ''), errors='coerce').dt.strftime('%m/%d/%Y')
+            case_list['Due Status'] = case_list['Due Date'].apply(lambda x: self.due_status(x))
+            #else:
+            #    case_list['Due Status'] = None
             
-            ,[Created_by_Display_Name] as [Created By]
-            ,[Owned_by_Display_Name] as [Owner]
-            ,[Assigned_to_Display_Name] as [Assigned To]
-            ,[Modified_by_Display_Name] as [Last Modified By]
-            
-            ,convert(date, [Created_Datetime Date]) as [Created Date]
-            ,convert(date, [Modified_Datetime Date]) as [Last Modified Date]
-            ,convert(date, [CaseClosed Date]) as [Closed Date]
-            ,convert(date, [Assign_Datetime date]) as [Assigned Date]
-            
-        from [FACTS].[dbo].[vw_FACTS_DYN_CASE_LIST] a 
-        join (select LIST_CASE_ID
-                    ,LIST_CASE_STATUS_SYSTEM
-                    ,LIST_CASE_STATUS_SYSTEM_CODE
-                from [BOXER_CME].[dbo].[CASE_LIST]
-            ) b
-        on a.CASE_ID = b.LIST_CASE_ID
-        where (CREATED_BY_SAM in {users} 
-            or ASSIGNED_TO_SAM in {users}
-            or OWNED_BY_SAM in {users}
-            or MODIFIED_BY_SAM in {users}
-            )
-        '''
-        if liferange=='Active':
-            query = query + f"and (LIST_CASE_STATUS_SYSTEM_CODE is null or LIST_CASE_STATUS_SYSTEM_CODE!='CLOSE')"
-        case_list = self.db.execQuery(query)
-        #case_list = app.execQuery(query, conn)
-        
-        case_list = case_list.merge(self.query_case_type(), on='CASE_TYPE_ID')
-        case_list['Case Title'] = case_list['Case Title'].fillna('NO TITLE').replace({'': 'NO TITLE'})
-        #case_list['Case URL'] = 'http://cases.boxerproperty.com/ViewCase.aspx?CaseID='+case_list['Case ID'].astype(str)
-        case_list['Due Status'] = case_list['Due Status'].replace({'': None}).fillna('No Due Date')
-        #case_list['Priority'] = case_list['Priority'].fillna('').apply(lambda x: None if 'select' in x.lower() else x).replace({'': None})
-        for c in ['Due Date', 'Created Date', 'Last Modified Date', 'Closed Date']:
-            case_list[c] = pd.to_datetime(case_list[c], errors='coerce').dt.strftime('%m/%d/%Y')
+            ''' in some cases, display name could be empty string,
+            repalce empty string with SAM '''
+            for c1, c2 in zip(['Created By', 'Owner', 'Assigned To', 'Last Modified By'], ['CREATED_BY_SAM', 'OWNER_SAM', 'ASSIGNED_TO_SAM', 'MODIFIED_BY_SAM']):
+                case_list[c1] = case_list[c1].replace({'': None}).fillna(case_list[c2])
 
-        ''' in some cases, display name could be empty string,
-        repalce empty string with SAM '''
-        for c1, c2 in zip(['Created By', 'Owner', 'Assigned To', 'Last Modified By'], ['CREATED_BY_SAM', 'OWNER_SAM', 'ASSIGNED_TO_SAM', 'MODIFIED_BY_SAM']):
-            case_list[c1] = case_list[c1].replace({'': None}).fillna(case_list[c2])
-
-        #case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].replace({'NaT': pd.to_datetime('today')})) - pd.to_datetime(case_list['Created Date'])).dt.days
-        case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].fillna(pd.to_datetime('today'))) - pd.to_datetime(case_list['Created Date'])).dt.days
-        
-        return case_list
+            #case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].replace({'NaT': pd.to_datetime('today')})) - pd.to_datetime(case_list['Created Date'])).dt.days
+            case_list['Case Life Days'] = (pd.to_datetime(case_list['Closed Date'].fillna(pd.to_datetime('today'))) - pd.to_datetime(case_list['Created Date'])).dt.days
+            
+            return case_list
 
 
     def security_code(self, user, case_type_id):
