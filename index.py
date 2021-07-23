@@ -70,10 +70,12 @@ app.layout = html.Div(
 url like: ./Username
 store username in session storage, diffrent users' pages could be opened at the same time
 if use cookie, can only open one person's page at one time '''
-@app.callback(
+'''@app.callback(
     Output('param_user', 'data'),
-    [Input('url', 'pathname')])
+    #[Input('url', 'pathname')])
+    [Input('url', 'search')])
 def user(pathname):
+    print (pathname)
     pathname = str(pathname)
     user = request.cookies['user']
 
@@ -82,7 +84,26 @@ def user(pathname):
         if len(param)>0:
             user = param
     #print ('\npathname:', pathname, user)
+    return user'''
+
+
+''' 
+url like: ./?username=user
+store username in session storage, diffrent users' pages could be opened at the same time
+if use cookie, can only open one person's page at one time '''
+@app.callback(
+    Output('param_user', 'data'),
+    [Input('url', 'search')])
+def user(search):
+    print (search)
+    search = str(search)
+    user = request.cookies['user']
+
+    if search.startswith('?'):
+        user = search.split('username=')[1]
+    print (user)
     return user
+
 
 
 @app.callback(

@@ -65,7 +65,7 @@ class CaseCalls:
                 ,[LIST_CASE_TYPE_ID] as [CASE_TYPE_ID]
                 ,b.[NAME] as [Case Type]
                 ,[LIST_CASE_TITLE] as [Case Title]
-                ,isnull(c.[Case_URL], 'http://cases.boxerproperty.com/ViewCase.aspx?CaseID='+str([LIST_CASE_ID])) as [Case URL]
+                ,(select [VALUE] from [BOXER_CME].[dbo].[CONFIG_SYSTEM] where [SYSTEM_CODE]='VCASE')+'?CaseID='+str(LIST_CASE_ID) as [Case URL]
                 
                 ,[LIST_CASE_STATUS_VALUE] as [Status]
                 ,[LIST_CASE_STATUS_SYSTEM] as [System Status]
@@ -90,8 +90,6 @@ class CaseCalls:
             from [BOXER_CME].[dbo].[CASE_LIST] a
             join [BOXER_CME].[dbo].[CASE_TYPE] b
             on a.LIST_CASE_TYPE_ID = b.CASE_TYPE_ID and b.IS_ACTIVE='Y'
-            left join [FACTS].[dbo].[vw_FACTS_DYN_CASE_LIST] c
-            on a.LIST_CASE_ID = c.CASE_ID
             where (LIST_CASE_CREATED_BY_SAM in {users} 
                 or LIST_CASE_ASSGN_TO_SAM in {users}
                 or LIST_CASE_OWNER_SAM in {users}
@@ -104,12 +102,12 @@ class CaseCalls:
             #case_list = app.execQuery(query)
             
             case_list['Case Title'] = case_list['Case Title'].fillna('NO TITLE').replace({'': 'NO TITLE'})
-            #if case_list.shape[0]>0:
-            for c in ['Due Date', 'Created Date', 'Last Modified Date', 'Closed Date']:
-                case_list[c] = pd.to_datetime(case_list[c].str.replace('Z', '').str.replace('T', ''), errors='coerce').dt.strftime('%m/%d/%Y')
-            case_list['Due Status'] = case_list['Due Date'].apply(lambda x: self.due_status(x))
-            #else:
-            #    case_list['Due Status'] = None
+            if case_list.shape[0]>0:
+                for c in ['Due Date', 'Created Date', 'Last Modified Date', 'Closed Date']:
+                    case_list[c] = pd.to_datetime(case_list[c].str.replace('Z', '').str.replace('T', ''), errors='coerce').dt.strftime('%m/%d/%Y')
+                case_list['Due Status'] = case_list['Due Date'].apply(lambda x: self.due_status(x))
+            else:
+                case_list['Due Status'] = None
             
             ''' in some cases, display name could be empty string,
             repalce empty string with SAM '''
