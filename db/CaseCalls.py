@@ -104,7 +104,10 @@ class CaseCalls:
             case_list['Case Title'] = case_list['Case Title'].fillna('NO TITLE').replace({'': 'NO TITLE'})
             if case_list.shape[0]>0:
                 for c in ['Due Date', 'Created Date', 'Last Modified Date', 'Closed Date']:
-                    case_list[c] = pd.to_datetime(case_list[c].str.replace('Z', '').str.replace('T', ''), errors='coerce').dt.strftime('%m/%d/%Y')
+                    try:
+                        case_list[c] = pd.to_datetime(case_list[c].str.replace('Z', '').str.replace('T', ''), errors='coerce').dt.strftime('%m/%d/%Y')
+                    except:
+                        case_list[c] = None
                 case_list['Due Status'] = case_list['Due Date'].apply(lambda x: self.due_status(x))
             else:
                 case_list['Due Status'] = None

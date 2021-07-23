@@ -16,7 +16,7 @@ server = app.server
 app.server.secret_key = b'3gsm4bnR/qLz4rJXDZwtf21Oi+3FUXveVkNDxSq6hT/uUBnEfUn3dWn/oRRklFArfVj+bp3v5Y7ebwDhicrqbQ=='
 @server.after_request
 def cookie_user(req):
-    user = request.cookies.get('byttTTojdr45', 'XianD')
+    user = request.cookies.get('byttTTojdr45', '')
     req.set_cookie('user', user)
     return req
 

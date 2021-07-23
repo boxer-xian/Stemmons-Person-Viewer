@@ -28,7 +28,7 @@ class CaseHandler:
         filter_out = []
         for case_type_id in case_list['CASE_TYPE_ID'].unique().tolist():
             sec_code = CaseCalls().security_code(user, case_type_id)
-            if sec_code.shape[0]==1 and sec_code['CODE'].values[0] in ['', 'C']:
+            if sec_code is not None and sec_code.shape[0]==1 and sec_code['CODE'].values[0] in ['', 'C']:
                 filter_out.append(case_type_id)
         
         if len(filter_out)>0:
